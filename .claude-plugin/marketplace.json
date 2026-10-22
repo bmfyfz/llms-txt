@@ -1,0 +1,13 @@
+{
+  "name": "llms-txt",
+  "description": "llms-browser: read any website through its llms.txt in Claude Code.",
+  "owner": {
+    "name": "bmfyfz"
+  },
+  "plugins": [
+    {
+      "name": "llms-browser",
+      "source": "./"
+    }
+  ]
+}

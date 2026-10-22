@@ -1,0 +1,8 @@
+{
+  "name": "llms-browser",
+  "version": "0.1.0",
+  "description": "Browse any site through its llms.txt (or a synthesized one): tools for Claude plus a /llms browser pane.",
+  "author": { "name": "bmfyfz", "url": "https://github.com/bmfyfz" },
+  "homepage": "https://github.com/bmfyfz/llms-txt",
+  "types": "./types/index.d.ts"
+}
