@@ -8,19 +8,25 @@ A Claude Code plugin for reading the web the way an LLM should: through [llms.tx
 
 ## Install
 
-At the prompt of a Claude Code terminal session:
-
-```
-/plugin install llms-txt --marketplace bmfyfz/llms-txt
-```
-
-Answer `y` to add the marketplace, then pick a scope (user is first). From a shell:
+From a shell:
 
 ```bash
-claude plugin install llms-txt --marketplace bmfyfz/llms-txt
+claude plugin marketplace add bmfyfz/llms-txt
+claude plugin install llms-txt@llms-txt
 ```
 
+Or at the prompt of a Claude Code session:
+
+```
+/plugin marketplace add bmfyfz/llms-txt
+/plugin install llms-txt@llms-txt
+```
+
+Newer Claude Code versions also take one line: `claude plugin install llms-txt --marketplace bmfyfz/llms-txt`.
+
 In the Claude desktop app, where `/plugin` doesn't run: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `bmfyfz/llms-txt`, then **Add plugin**.
+
+The plugin uses Claude Code's early-access hooks API. If `/llms-txt` doesn't show up, update Claude Code (`claude update`).
 
 ## Use
 
