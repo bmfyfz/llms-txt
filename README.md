@@ -1,4 +1,4 @@
-# llms-browser
+# llms-txt
 
 A Claude Code plugin for reading the web the way an LLM should: through [llms.txt](https://llmstxt.org).
 
@@ -11,13 +11,13 @@ A Claude Code plugin for reading the web the way an LLM should: through [llms.tx
 At the prompt of a Claude Code terminal session:
 
 ```
-/plugin install llms-browser --marketplace bmfyfz/llms-txt
+/plugin install llms-txt --marketplace bmfyfz/llms-txt
 ```
 
 Answer `y` to add the marketplace, then pick a scope (user is first). From a shell:
 
 ```bash
-claude plugin install llms-browser --marketplace bmfyfz/llms-txt
+claude plugin install llms-txt --marketplace bmfyfz/llms-txt
 ```
 
 In the Claude desktop app, where `/plugin` doesn't run: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `bmfyfz/llms-txt`, then **Add plugin**.

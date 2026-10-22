@@ -10,13 +10,13 @@ const PANE = 'llms'
 const PANE_TOKENS = 15_000
 const EXAMPLES = ['hono.dev', 'svelte.dev', 'docs.anthropic.com']
 
-const history = atom({ plugin: 'llms-browser', key: 'history' } as const, [])
-const index = atom({ plugin: 'llms-browser', key: 'index' } as const, -1)
-const doc = atom({ plugin: 'llms-browser', key: 'doc' } as const, null)
-const status = atom({ plugin: 'llms-browser', key: 'status' } as const, 'idle')
-const error = atom({ plugin: 'llms-browser', key: 'error' } as const, '')
-const pending = atom({ plugin: 'llms-browser', key: 'pending' } as const, '')
-const showIssues = atom({ plugin: 'llms-browser', key: 'showIssues' } as const, false)
+const history = atom({ plugin: 'llms-txt', key: 'history' } as const, [])
+const index = atom({ plugin: 'llms-txt', key: 'index' } as const, -1)
+const doc = atom({ plugin: 'llms-txt', key: 'doc' } as const, null)
+const status = atom({ plugin: 'llms-txt', key: 'status' } as const, 'idle')
+const error = atom({ plugin: 'llms-txt', key: 'error' } as const, '')
+const pending = atom({ plugin: 'llms-txt', key: 'pending' } as const, '')
+const showIssues = atom({ plugin: 'llms-txt', key: 'showIssues' } as const, false)
 
 function net($: EngineInterface): Net {
   return {
@@ -178,7 +178,7 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('tool.call', { tool: 'mcp__llms-browser__llms_txt' }, async ($, e) => {
+  on('tool.call', { tool: 'mcp__llms-txt__llms_txt' }, async ($, e) => {
     const site = typeof e.site === 'string' ? e.site : ''
     const maxTokens = typeof e.max_tokens === 'number' ? e.max_tokens : 15_000
     const wantFull = e.full === true
@@ -202,7 +202,7 @@ export const register: Register = on => {
     }
   })
 
-  on('tool.call', { tool: 'mcp__llms-browser__llms_read' }, async ($, e) => {
+  on('tool.call', { tool: 'mcp__llms-txt__llms_read' }, async ($, e) => {
     const url = typeof e.url === 'string' ? e.url : ''
     const maxTokens = typeof e.max_tokens === 'number' ? e.max_tokens : 12_000
     try {
@@ -223,7 +223,7 @@ export const register: Register = on => {
     await navigate($, site, true)
     const v = await read($, doc)
     const err = await read($, error)
-    return { text: err !== '' ? `llms-browser: ${err}` : `Browsing ${v?.url ?? site}.` }
+    return { text: err !== '' ? `llms-txt: ${err}` : `Browsing ${v?.url ?? site}.` }
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {

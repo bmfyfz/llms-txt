@@ -27,7 +27,7 @@ const net = (on: On) => {
 
 test('llms_txt returns a published llms.txt with its facts', async ($, on) => {
   net(on)
-  const r = await $.tool.call({ tool: 'mcp__llms-browser__llms_txt', site: 'docs.pub.dev' })
+  const r = await $.tool.call({ tool: 'mcp__llms-txt__llms_txt', site: 'docs.pub.dev' })
   const text = String(r.result ?? JSON.stringify(r))
   expect(text).toContain('Source: https://docs.pub.dev/llms.txt (published by the site)')
   expect(text).toContain('llms-full.txt: https://docs.pub.dev/llms-full.txt')
@@ -36,7 +36,7 @@ test('llms_txt returns a published llms.txt with its facts', async ($, on) => {
 
 test('llms_txt synthesizes one when the site serves HTML for every path', async ($, on) => {
   net(on)
-  const r = await $.tool.call({ tool: 'mcp__llms-browser__llms_txt', site: 'https://spa.dev' })
+  const r = await $.tool.call({ tool: 'mcp__llms-txt__llms_txt', site: 'https://spa.dev' })
   const text = String(r.result ?? JSON.stringify(r))
   expect(text).toContain('Source: synthesized')
   expect(text).toContain('[About us](https://spa.dev/about)')
@@ -45,7 +45,7 @@ test('llms_txt synthesizes one when the site serves HTML for every path', async 
 
 test('llms_read prefers the markdown twin', async ($, on) => {
   net(on)
-  const r = await $.tool.call({ tool: 'mcp__llms-browser__llms_read', url: 'https://docs.pub.dev/intro' })
+  const r = await $.tool.call({ tool: 'mcp__llms-txt__llms_read', url: 'https://docs.pub.dev/intro' })
   const text = String(r.result ?? JSON.stringify(r))
   expect(text).toContain('(markdown twin)')
   expect(text).toContain('Hello.')

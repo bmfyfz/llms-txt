@@ -21,7 +21,7 @@ export type Status = 'idle' | 'loading' | 'error'
 
 declare module 'claude-code' {
   interface PluginState {
-    'llms-browser': {
+    'llms-txt': {
       history: string[]
       index: number
       doc: View | null

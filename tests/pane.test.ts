@@ -21,11 +21,11 @@ for (const surface of ['terminal', 'desktop'] as const) {
 
     // The pane reads none of its props; the kit fills in what a surface would.
     const props = { title: 'llms.txt', isFocused: true, bodyColumns: 100 } as never
-    const pane = await $.ui.mount({ plugin: 'llms-browser', surface, component: 'Pane', requestId: 'llms', props })
+    const pane = await $.ui.mount({ plugin: 'llms-txt', surface, component: 'Pane', requestId: 'llms', props })
     expect(await pane.find({ text: 'llms.txt browser' })).toBeDefined()
     expect(await pane.find({ key: 'ex-hono.dev' })).toBeDefined()
 
-    await $.ui.input({ plugin: 'llms-browser', key: 'address', text: 'docs.pub.dev', requestId: 'llms', surface })
+    await $.ui.input({ plugin: 'llms-txt', key: 'address', text: 'docs.pub.dev', requestId: 'llms', surface })
     expect(await pane.find({ text: 'Pub' })).toBeDefined()
     expect(await pane.find({ text: 'Docs for Pub.' })).toBeDefined()
     expect(await pane.find({ text: /Published llms\.txt/ })).toBeDefined()

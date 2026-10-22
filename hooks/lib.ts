@@ -298,7 +298,7 @@ export function synthesizeLlmsTxt(input: {
   const lines = [`# ${title}`, '']
   if (description) lines.push(`> ${description}`, '')
   lines.push(
-    `This llms.txt was synthesized by llms-browser because ${host} publishes none. ` +
+    `This llms.txt was synthesized by llms-txt because ${host} publishes none. ` +
       'Sections come from the site’s sitemap and homepage links.',
     '',
   )
