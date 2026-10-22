@@ -4,7 +4,7 @@ A Claude Code plugin for reading the web the way an LLM should: through [llms.tx
 
 - **`llms_txt` tool**: Claude gets a site's llms.txt (checking `<path>/llms.txt`, `/llms.txt`, `/.well-known/llms.txt`), with its token size, spec issues and whether `llms-full.txt` exists. Sites with no llms.txt get one synthesized from their homepage and sitemap, clearly labelled as such.
 - **`llms_read` tool**: reads any page as clean markdown, preferring markdown the server sends, then the page's `.md` twin, then converting the HTML.
-- **`/llms <domain>`**: opens a browser pane in Claude Code. Type a domain, click links to follow them, toggle spec issues, jump to `llms-full.txt`.
+- **`/llms-txt <domain>`**: opens a browser pane in Claude Code. Type a domain, click links to follow them, toggle spec issues, jump to `llms-full.txt`.
 
 ## Install
 
@@ -24,7 +24,7 @@ In the Claude desktop app, where `/plugin` doesn't run: click **+** next to the 
 
 ## Use
 
-- `/llms hono.dev` opens the browser pane.
+- `/llms-txt hono.dev` opens the browser pane.
 - Or just ask: *"Use llms_txt on docs.stripe.com and find how webhook signatures are verified."*
 
 ## Develop

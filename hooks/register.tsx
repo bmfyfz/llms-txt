@@ -171,7 +171,7 @@ export const register: Register = on => {
       isDeferred: false,
     })
     await $.command.register({
-      name: 'llms',
+      name: 'llms-txt',
       description: "Browse a site's llms.txt in a pane",
       argumentHint: '<domain or URL>',
     })
@@ -216,7 +216,7 @@ export const register: Register = on => {
     }
   })
 
-  on('command.run', { command: 'llms' }, async ($, e) => {
+  on('command.run', { command: 'llms-txt' }, async ($, e) => {
     await $.ui.open({ id: PANE, title: 'llms.txt', focus: true, rows: 30, columns: 100 })
     const site = e.args.trim()
     if (site === '') return { text: 'Opened the llms.txt browser. Type a domain in its address bar.' }
