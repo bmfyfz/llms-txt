@@ -1,8 +1,11 @@
 {
   "name": "llms-txt",
-  "version": "0.1.0",
-  "description": "Browse any site through its llms.txt (or a synthesized one): tools for Claude plus a /llms browser pane.",
+  "version": "0.2.0",
+  "description": "Read any website through its llms.txt (or a synthesized one): index and read tools for Claude, plus a /llms-txt browser pane.",
   "author": { "name": "bmfyfz", "url": "https://github.com/bmfyfz" },
   "homepage": "https://github.com/bmfyfz/llms-txt",
+  "repository": "https://github.com/bmfyfz/llms-txt",
+  "license": "MIT",
+  "keywords": ["llms.txt", "documentation", "markdown", "web"],
   "types": "./types/index.d.ts"
 }

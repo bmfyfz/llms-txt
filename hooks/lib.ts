@@ -21,6 +21,31 @@ export function normalizeTarget(input: string): URL {
   return url
 }
 
+// Hosts a tool call must not reach: loopback, private, link-local and cloud
+// metadata addresses, and names that only resolve inside a network. `URL`
+// has already normalized odd spellings (2130706433, 0x7f.1) to dotted IPv4.
+export function isPrivateHost(hostname: string): boolean {
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '')
+  if (h === 'localhost' || /\.(localhost|local|internal|lan|home\.arpa)$/.test(h)) return true
+  const v4 = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/)
+  if (v4) {
+    const a = Number(v4[1])
+    const b = Number(v4[2])
+    return (
+      a === 0 || a === 10 || a === 127 || a >= 224 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 100 && b >= 64 && b <= 127)
+    )
+  }
+  if (h.includes(':')) {
+    return h === '::' || h === '::1' || h.startsWith('::ffff:') || /^f[cd]/.test(h) || /^fe[89ab]/.test(h)
+  }
+  // A single-label name (`intranet`, `router`) resolves only on a local network.
+  return !h.includes('.')
+}
+
 export const isSiteRoot = (url: URL): boolean => url.pathname === '/' || url.pathname === ''
 
 export function looksLikeHtml(text: string, contentType = ''): boolean {
@@ -55,6 +80,8 @@ export function parseLlmsTxt(text: string, base?: string): Parsed {
 
   let current: Section | null = null
   let linkCount = 0
+  // List items without a link, per section: one issue each, not one per line.
+  const prose = new Map<Section, number>()
   for (; i < lines.length; i++) {
     const line = lines[i] ?? ''
     if (/^#\s+/.test(line)) {
@@ -70,9 +97,7 @@ export function parseLlmsTxt(text: string, base?: string): Parsed {
     if (!/^\s*[-*+]\s+/.test(line)) continue
     const m = line.match(LINK_ITEM)
     if (!m) {
-      if (current) {
-        parsed.issues.push(`Line ${i + 1}: a list item in "${current.name}" without a [title](url) link.`)
-      }
+      if (current) prose.set(current, (prose.get(current) ?? 0) + 1)
       continue
     }
     if (!current) {
@@ -94,7 +119,15 @@ export function parseLlmsTxt(text: string, base?: string): Parsed {
   if (parsed.sections.length === 0) parsed.issues.push('No "## Section" headings with link lists.')
   else if (linkCount === 0) parsed.issues.push('Sections hold no [title](url) links.')
   for (const s of parsed.sections) {
-    if (s.links.length === 0) parsed.issues.push(`Section "${s.name}" has no links.`)
+    const n = prose.get(s) ?? 0
+    if (n > 0) {
+      parsed.issues.push(
+        `Section "${s.name}" has ${n} list item${n === 1 ? '' : 's'} without a [title](url) link; ` +
+          'the spec wants link lists under H2s (notes go above the first H2).',
+      )
+    } else if (s.links.length === 0) {
+      parsed.issues.push(`Section "${s.name}" has no links.`)
+    }
   }
   return parsed
 }

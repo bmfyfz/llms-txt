@@ -10,19 +10,39 @@ import {
   sitemapLocs,
   synthesizeLlmsTxt,
   htmlToMarkdown,
+  isPrivateHost,
   type Parsed,
 } from './lib'
 
 type Got = { url: string; ok: boolean; status: number; text: string; type: string; length?: number }
 
 // What the module needs from the host; register.tsx builds it from `$`.
+// `allowPrivate` is true only for the person's own navigation in the pane:
+// a tool call, which page content can steer, never reaches a private host.
 export type Net = {
   fetch: (url: string, init?: HttpInit) => Promise<HttpResponse>
   now: () => Promise<number>
+  allowPrivate?: boolean
 }
 
 const TTL_MS = 10 * 60 * 1000
+const CACHE_ENTRIES = 64
+// llms-full.txt can run to megabytes; bodies past this are fetched each time.
+const CACHE_MAX_CHARS = 2_000_000
 const cache = new Map<string, { at: number; got: Got }>()
+
+// Refuses what a tool call must not fetch, with the reason as the message.
+export function assertAllowed(net: Net, url: URL): void {
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error(`Only http and https URLs can be read, not ${url.protocol}`)
+  }
+  if (!net.allowPrivate && isPrivateHost(url.hostname)) {
+    throw new Error(
+      `${url.host} is a local or private address; the tools only read public sites. ` +
+        'Open it in the /llms-txt pane instead.',
+    )
+  }
+}
 
 async function get(
   net: Net,
@@ -30,6 +50,11 @@ async function get(
   init: { method?: string; accept?: string } = {},
 ): Promise<Got> {
   const method = init.method ?? 'GET'
+  try {
+    assertAllowed(net, new URL(url))
+  } catch (error) {
+    return { url, ok: false, status: 0, text: String(error), type: '' }
+  }
   const key = `${method} ${init.accept ?? ''} ${url}`
   const now = await net.now()
   const hit = cache.get(key)
@@ -53,7 +78,14 @@ async function get(
   } catch (error) {
     got = { url, ok: false, status: 0, text: String(error), type: '' }
   }
-  cache.set(key, { at: now, got })
+  if (got.text.length <= CACHE_MAX_CHARS) {
+    cache.delete(key)
+    if (cache.size >= CACHE_ENTRIES) {
+      const oldest = cache.keys().next().value
+      if (oldest !== undefined) cache.delete(oldest)
+    }
+    cache.set(key, { at: now, got })
+  }
   return got
 }
 
@@ -88,6 +120,7 @@ export async function discover(
   opts: { wantFull?: boolean } = {},
 ): Promise<SiteResult> {
   const target = normalizeTarget(site)
+  assertAllowed(net, target)
   const origin = target.origin
 
   if (/\/llms(-full)?\.txt$/i.test(target.pathname)) {
@@ -151,13 +184,18 @@ async function finish(
   }
   if (source === 'published' && !/llms-full\.txt$/i.test(url)) {
     const fullUrl = url.replace(/llms\.txt$/i, 'llms-full.txt')
-    const g = opts.wantFull ? await get(net, fullUrl) : await get(net, fullUrl, { method: 'HEAD' })
-    const exists = opts.wantFull ? isText(g) : g.ok && !/text\/html/i.test(g.type)
-    if (exists) {
-      result.full = {
-        url: fullUrl,
-        tokens: opts.wantFull ? estimateTokens(g.text) : g.length === undefined ? undefined : Math.ceil(g.length / 4),
-        text: opts.wantFull ? g.text : undefined,
+    // A HEAD tells whether it exists without the download; servers that refuse
+    // HEAD get a GET, whose body the cache keeps for the `full` call after.
+    const head = opts.wantFull ? undefined : await get(net, fullUrl, { method: 'HEAD' })
+    const isHeadRefused = head !== undefined && [403, 405, 501].includes(head.status)
+    if (head && !isHeadRefused) {
+      if (head.ok && !/text\/html/i.test(head.type)) {
+        result.full = { url: fullUrl, tokens: head.length === undefined ? undefined : Math.ceil(head.length / 4) }
+      }
+    } else {
+      const g = await get(net, fullUrl)
+      if (isText(g)) {
+        result.full = { url: fullUrl, tokens: estimateTokens(g.text), text: opts.wantFull ? g.text : undefined }
       }
     }
   }
@@ -175,6 +213,7 @@ export type PageResult = {
 // twin when the site serves one, else the HTML converted.
 export async function readPage(net: Net, input: string): Promise<PageResult> {
   const target = normalizeTarget(input)
+  assertAllowed(net, target)
   const url = target.toString()
 
   for (const twin of markdownVariants(target)) {

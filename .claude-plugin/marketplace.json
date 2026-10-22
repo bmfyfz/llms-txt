@@ -1,13 +1,12 @@
 {
-  "name": "llms-txt",
-  "description": "llms-txt: read any website through its llms.txt in Claude Code.",
-  "owner": {
-    "name": "bmfyfz"
-  },
+  "name": "bmfyfz",
+  "description": "Claude Code plugins by bmfyfz.",
+  "owner": { "name": "bmfyfz", "url": "https://github.com/bmfyfz" },
   "plugins": [
     {
       "name": "llms-txt",
-      "source": "./"
+      "source": "./",
+      "description": "Read any website through its llms.txt in Claude Code."
     }
   ]
 }
